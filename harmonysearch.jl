@@ -1,4 +1,4 @@
-using ProgressMeter
+#using ProgressMeter
 using Base
 
 
@@ -168,6 +168,50 @@ function report(harmony::Harmony)
 end
 
 function harmonize(objFunc::Function, memorySize::Int64, bounds::Array, iterations::Int64=1000000, pitch::Float64=0.1, pitchRate::Float64=.9, improvRate::Float64=.9)
+"""
+Interface for optimizing a model by finding the parameters that minimize
+the objective Function 'objFunc' using Harmony Search.
+
+:param objFunc::Function: Function accepting an Array of parameters and
+returning a Float64. The algorithm tries to find the set of parameters that
+minimizes this function's return value.
+
+:param memorySize::Int64: Number of Harmony instances kept in memory. Warning:
+Can greatly impact performance. Choose large values only if necessary.
+
+:param bounds::Array: Contains a list of tuples each defining the lower/upper
+bound of one parameter. The length of the Array is also the number of parameters.
+Starting parameters are selected randomly from within these bounds.
+
+:param iterations::Int64: Defining the number of iterations the algorithm will run.
+Trying many iterations will not garantee better solutions. Usually a certain
+configuration has a maximum accuracy associated with it. Finding better solutions
+may require different configurations.
+
+:param pitch::Float64: Defines the amount by which a paramter is changed whenever
+the modulation criteria is met. This value is directly related to the maximum
+accuracy that can be reached. However too small values can greatly increase
+the necessary number of iterations in order to reach the best solution.
+
+:param pitchRate::Float64: Defines how often a new Harmony is modulated: 1=never
+0=always.
+
+:param improvRate::Float64: Defines how often a new Harmony is improvised meaning
+a new value is generated randomly within its bounds: 1=never 0=always.
+
+:return Memory: Returns the memory in its final stage containing the 'memorySize' 
+best solutions. Calling 'report' on the object returns a tuple containing the
+the objective Function's return value for the best set of parameters and
+a list of the corresponding parameters as a second value.
+
+
+Example:
+
+bounds = [(0,2),(0,1),(0,4),(0,1),(0,1),(-5,1),(0,1),(0,1),(0,1),(0,1)]
+memory = harmonize(sum, 10, bounds, 1000000, .01)
+report(memory)
+println(harvest(memory))
+"""
    memory = Memory(memorySize, bounds)
    registerObjFunc(memory, objFunc)
    configure(memory, pitch, pitchRate, improvRate)
@@ -180,7 +224,3 @@ function harmonize(objFunc::Function, memorySize::Int64, bounds::Array, iteratio
 end
 
 
-bounds = [(0,2),(0,1),(0,4),(0,1),(0,1),(-5,1),(0,1),(0,1),(0,1),(0,1)]
-memory = harmonize(sum, 10, bounds, 1000000, .01)
-report(memory)
-println(harvest(memory))
